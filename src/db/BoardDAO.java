@@ -300,4 +300,81 @@ public class BoardDAO {
 		
 		return 0;
 	}
+	
+	//글 수정
+	public boolean boardModify(BoardBean modifyboard) throws Exception{
+		String sql = "UPDATE BOARD"
+				   + "   SET BOARD_SUBJECT = ?"
+				   + "     , BOARD_CONTENT = ?"
+				   + " WHERE BOARD_NUM = ?";
+		try{
+			pstmt = con.prepareStatement(sql);
+			pstmt.setString(1, modifyboard.getBoard_subject());
+			pstmt.setString(2, modifyboard.getBoard_content());
+			pstmt.setInt(3, modifyboard.getBoard_num());
+			pstmt.executeUpdate();
+			return true;
+		}catch(Exception ex){
+			System.out.println("boardmodify 에러 : " + ex);
+		}finally{
+			if(rs!=null)try{rs.close();}catch(Exception ex) {}
+			if(pstmt!=null)try{pstmt.close();}catch(Exception ex) {}
+		}
+		return false;
+	}
+	
+	//글 삭제
+	public boolean boardDelete(int num){
+		String board_delete_sql = "DELETE FROM BOARD WHERE BOARD_NUM = ?";
+		int result = 0;
+		
+		try{
+			pstmt = con.prepareStatement(board_delete_sql);
+			pstmt.setInt(1, num);
+			result = pstmt.executeUpdate();
+			if(result == 0) return false;
+			
+			return true;
+		}catch(Exception ex){
+			System.out.println("boardDelete 에러 : " + ex);
+		}finally{
+			try{
+				if(pstmt != null)pstmt.close();
+			}catch(Exception ex){}
+		}
+		
+		return false;
+	}
+	
+	//조회수 업데이트
+	public void setReadCountUpdate(int num) throws Exception{
+		String sql = "UPDATE BOARD"
+				   + "   SET BOARD_READCOUNT = BOARD_READCOUNT + 1"
+				   + " WHERE BOARD_NUM = " + num;
+		
+		try{
+			pstmt = con.prepareStatement(sql);
+			pstmt.executeUpdate();
+		}catch(Exception ex){
+			System.out.println("setReadCountUpdate 에러 : " + ex);
+		}
+	}
+	
+	//글쓴이인지 확인
+	public boolean isBoardWriter(int num, String pass){
+		String board_sql = "SELECT * FROM WHERE BOARD_NUM = ?";
+		
+		try{
+			pstmt = con.prepareStatement(board_sql);
+			pstmt.setInt(1, num);
+			rs = pstmt.executeQuery();
+			rs.next();
+			
+			if(pass.equals(rs.getString("BOARD_PASS"))) return true;
+		}catch(Exception ex){
+			System.out.println("isBoardWriter 에러 : " + ex);
+		}
+		
+		return false;
+	}
 }
